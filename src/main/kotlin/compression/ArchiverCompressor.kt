@@ -1,11 +1,6 @@
 package compression
 
-import java.io.InputStream
 import java.nio.file.Path
-
-sealed interface CompressionResult
-class Success(val path: Path) : CompressionResult
-class Failure(val message: String) : CompressionResult
 
 interface ArchiverCompressor {
 

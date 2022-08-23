@@ -1,6 +1,9 @@
 package compression
 
-import java.io.*
+import java.io.BufferedInputStream
+import java.io.BufferedOutputStream
+import java.io.FileInputStream
+import java.io.FileOutputStream
 import java.nio.file.Files
 import java.nio.file.Path
 import java.util.zip.ZipEntry
@@ -32,7 +35,6 @@ class ZipCompressor : ArchiverCompressor {
                 }
             }
         }
-
         return result.process(outputZipPath)
     }
 
@@ -74,10 +76,10 @@ class ZipCompressor : ArchiverCompressor {
                 }
             }
         }
-
         return result.process(outputFolder)
     }
 
+    @Suppress("DuplicatedCode")
     private fun createFiles(zipInputStream: ZipInputStream, outputFolder: Path) {
         var zipEntry = zipInputStream.nextEntry
         while (zipEntry != null) {
@@ -99,18 +101,4 @@ class ZipCompressor : ArchiverCompressor {
             throw SecurityException(String.format("Attempted zip slip attack through file \"%s\"", path));
         }
     }
-}
-
-private fun <T> Result<T>.process(outputPath: Path): CompressionResult =
-    if (this.isFailure) {
-        deleteAll(outputPath)
-        Failure(this.exceptionOrNull()?.message ?: "Unexpected failure")
-    } else {
-        Success(outputPath)
-    }
-
-private fun deleteAll(path: Path) = runCatching {
-    Files.walk(path)
-        .sorted(Comparator.reverseOrder())
-        .map(Files::delete)
 }
