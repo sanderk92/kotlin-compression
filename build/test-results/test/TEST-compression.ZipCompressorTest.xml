@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="compression.ZipCompressorTest" tests="4" skipped="0" failures="0" errors="0" timestamp="2022-08-23T20:34:32" hostname="LAPTOP-QQFMAFHL" time="0.104">
+  <properties/>
+  <testcase name="a file in a folder is properly zipped()" classname="compression.ZipCompressorTest" time="0.071"/>
+  <testcase name="a zip with a file in a folder can be decompressed()" classname="compression.ZipCompressorTest" time="0.017"/>
+  <testcase name="a single file is properly zipped()" classname="compression.ZipCompressorTest" time="0.005"/>
+  <testcase name="a zip with a single file can be decompressed()" classname="compression.ZipCompressorTest" time="0.01"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>
