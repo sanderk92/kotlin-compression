@@ -5,12 +5,13 @@ import java.nio.file.Path
 
 sealed interface CompressionResult
 class Success(val path: Path) : CompressionResult
-class Failure(val message: String) : CompressionResult
+class InputError(val message: String): CompressionResult
+class FileSystemError(val message: String) : CompressionResult
 
 fun <T> Result<T>.process(outputPath: Path): CompressionResult =
     if (this.isFailure) {
         deleteAll(outputPath)
-        Failure(this.exceptionOrNull()?.message ?: "Unexpected failure")
+        FileSystemError(this.exceptionOrNull()?.message ?: "Unexpected failure")
     } else {
         Success(outputPath)
     }

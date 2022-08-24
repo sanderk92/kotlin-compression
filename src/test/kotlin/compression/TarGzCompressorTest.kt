@@ -14,7 +14,7 @@ import java.nio.file.Path
 
 // TODO Test slip attack
 // TODO Test missing files
-// TODO Test state assertions
+// TODO Test InputErrors
 class TarGzCompressorTest {
 
     private var instance: TarGzCompressor = TarGzCompressor()

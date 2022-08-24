@@ -26,8 +26,8 @@ class ZipCompressor : ArchiverCompressor {
     override fun compress(sourcePath: Path, outputFilePath: Path): CompressionResult {
         val outputZipPath = outputFilePath.resolveSibling(outputFilePath.name + EXTENSION)
 
-        if (Files.notExists(sourcePath)) return Failure("sourcePath does not exist")
-        if (Files.exists(outputZipPath)) return Failure("outputFilePath already exists")
+        if (Files.notExists(sourcePath)) return InputError("sourcePath does not exist")
+        if (Files.exists(outputZipPath)) return InputError("outputFilePath already exists")
 
         val result = runCatching {
             FileOutputStream(outputZipPath.toFile()).use { fileOutputStream ->
@@ -70,7 +70,7 @@ class ZipCompressor : ArchiverCompressor {
      * All intermediately required directories are created.
      */
     override fun decompress(filePath: Path, outputFolder: Path): CompressionResult {
-        if (Files.notExists(filePath)) return Failure("filePath does not exist")
+        if (Files.notExists(filePath)) return InputError("filePath does not exist")
 
         val result = runCatching {
             FileInputStream(filePath.toFile()).use { fileInputStream ->
