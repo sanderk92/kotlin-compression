@@ -12,6 +12,7 @@ import java.util.zip.ZipOutputStream
 
 // TODO Test slip attack
 // TODO Test missing files
+// TODO Test state assertions
 class ZipCompressorTest {
 
     private var instance: ZipCompressor = ZipCompressor()

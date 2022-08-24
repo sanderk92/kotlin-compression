@@ -28,6 +28,9 @@ class TarGzCompressor : ArchiverCompressor {
     override fun compress(sourcePath: Path, outputFilePath: Path): CompressionResult {
         val outputZipPath = outputFilePath.resolveSibling(outputFilePath.name + EXTENSION)
 
+        if (Files.notExists(sourcePath)) return Failure("sourcePath does not exist")
+        if (Files.exists(outputZipPath)) return Failure("outputFilePath already exists")
+
         val result = runCatching {
             FileOutputStream(outputZipPath.toFile()).use { fileOutputStream ->
                 BufferedOutputStream(fileOutputStream).use { bufferedOutputStream ->
@@ -69,9 +72,11 @@ class TarGzCompressor : ArchiverCompressor {
         }
 
     /**
-     * @throws SecurityException when possibly malignant path sections have been detected
+     * All intermediately required directories are created.
      */
     override fun decompress(filePath: Path, outputFolder: Path): CompressionResult {
+        if (Files.notExists(filePath)) return Failure("filePath does not exist")
+
         val result = runCatching {
             FileInputStream(filePath.toFile()).use { fileInputStream ->
                 BufferedInputStream(fileInputStream).use { bufferedInputStream ->
