@@ -15,23 +15,19 @@ import kotlin.io.path.name
 
 private const val EXTENSION = ".tar.gz"
 
+@Suppress("DuplicatedCode")
 class TarGzCompressor : ArchiverCompressor {
 
     override fun supportedExtension() = EXTENSION
 
-    /**
-     * Do not output to the same folder as the input is read from. When a folder is compressed, the direct children of
-     * the selected folder are added to the archive. When a single file is compressed, it will simply be the only file
-     * in the archive. In case compression fails, all resulted files will be deleted. Any failures during this cleanup
-     * will be ignored.
-     */
-    override fun compress(sourcePath: Path, outputFilePath: Path): CompressionResult {
-        val outputZipPath = outputFilePath.resolveSibling(outputFilePath.name + EXTENSION)
+    override fun compress(sourcePath: Path, targetFilePath: Path): CompressionResult {
+        val outputZipPath = targetFilePath.resolveSibling(targetFilePath.name + EXTENSION)
 
         if (Files.notExists(sourcePath)) return InputError("sourcePath does not exist")
-        if (Files.exists(outputZipPath)) return InputError("outputFilePath already exists")
+        if (Files.exists(outputZipPath)) return InputError("targetFilePath already exists")
+        if (sourcePath == targetFilePath.parent) return InputError("sourcePath and targetFilePath's parent are equal")
 
-        val result = runCatching {
+        return compressionResult(outputZipPath) {
             FileOutputStream(outputZipPath.toFile()).use { fileOutputStream ->
                 BufferedOutputStream(fileOutputStream).use { bufferedOutputStream ->
                     GzipCompressorOutputStream(bufferedOutputStream).use { gzipOutputStream ->
@@ -42,7 +38,6 @@ class TarGzCompressor : ArchiverCompressor {
                 }
             }
         }
-        return result.process(outputZipPath)
     }
 
     private fun createTarEntries(sourcePath: Path, tarOutputStream: TarArchiveOutputStream) {
@@ -71,27 +66,23 @@ class TarGzCompressor : ArchiverCompressor {
             selectedPath.relativize(file)
         }
 
-    /**
-     * All intermediately required directories are created.
-     */
-    override fun decompress(filePath: Path, outputFolder: Path): CompressionResult {
-        if (Files.notExists(filePath)) return InputError("filePath does not exist")
+    override fun decompress(sourcePath: Path, outputDirectory: Path): CompressionResult {
 
-        val result = runCatching {
-            FileInputStream(filePath.toFile()).use { fileInputStream ->
+        if (Files.notExists(sourcePath)) return InputError("sourcePath does not exist")
+
+        return compressionResult(outputDirectory) {
+            FileInputStream(sourcePath.toFile()).use { fileInputStream ->
                 BufferedInputStream(fileInputStream).use { bufferedInputStream ->
                     GzipCompressorInputStream(bufferedInputStream).use { gzipInputStream ->
                         TarArchiveInputStream(gzipInputStream).use { tarInputStream ->
-                            createFiles(tarInputStream, outputFolder)
+                            createFiles(tarInputStream, outputDirectory)
                         }
                     }
                 }
             }
         }
-        return result.process(outputFolder)
     }
 
-    @Suppress("DuplicatedCode")
     private fun createFiles(tarInputStream: TarArchiveInputStream, outputFolder: Path) {
         var tarEntry = tarInputStream.nextTarEntry
         while (tarEntry != null) {

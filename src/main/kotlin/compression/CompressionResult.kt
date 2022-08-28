@@ -8,12 +8,13 @@ class Success(val path: Path) : CompressionResult
 class InputError(val message: String): CompressionResult
 class FileSystemError(val message: String) : CompressionResult
 
-fun <T> Result<T>.process(outputPath: Path): CompressionResult =
-    if (this.isFailure) {
-        deleteAll(outputPath)
-        FileSystemError(this.exceptionOrNull()?.message ?: "Unexpected failure")
-    } else {
-        Success(outputPath)
+fun compressionResult(path: Path, compressionFn: () -> Unit): CompressionResult =
+    try {
+        compressionFn()
+        Success(path)
+    } catch (e: Exception) {
+        deleteAll(path)
+        FileSystemError(e.message ?: "Unexpected failure")
     }
 
 private fun deleteAll(path: Path) = runCatching {
