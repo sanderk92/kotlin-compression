@@ -25,7 +25,6 @@ class TarGzCompressor : ArchiverCompressor {
 
         if (Files.notExists(sourcePath)) return InputError("sourcePath does not exist")
         if (Files.exists(outputZipPath)) return InputError("targetFilePath already exists")
-        if (sourcePath == targetFilePath.parent) return InputError("sourcePath and targetFilePath's parent are equal")
 
         return compressionResult(outputZipPath) {
             FileOutputStream(outputZipPath.toFile()).use { fileOutputStream ->
